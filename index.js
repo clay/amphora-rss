@@ -61,7 +61,7 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
       { 'itunes:type': 'episodic' },
       { 'itunes:owner': contactInfo(title, 'neil.janowitz@vulture.com') },
       { 'itunes:image': 'http://pixel.nymag.com/imgs/daily/vulture/2018/08/21/Vulture3000x3000.jpg' },
-      { 'itunes:category': [{ _attr: { text: 'Entertainment'} }]},
+      { 'itunes:category': [{ _attr: { text: 'Entertainment'} }] },
       { 'itunes:explicit': 'no' }
     ];
 
