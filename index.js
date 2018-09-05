@@ -31,11 +31,11 @@ function elevateCategory(group) {
  * @param {string} email
  * @returns {Array}
  */
-function contactInfo (name, email) {
+function contactInfo(name, email) {
   return [
     { 'itunes:name': name },
     { 'itunes:email': email }
-  ]
+  ];
 }
 
 /**
