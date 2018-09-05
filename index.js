@@ -26,6 +26,19 @@ function elevateCategory(group) {
 }
 
 /**
+ *
+ * @param {string} name
+ * @param {string} email
+ * @returns {Array}
+ */
+function contactInfo (name, email) {
+  return [
+    { 'itunes:name': name },
+    { 'itunes:email': email }
+  ]
+}
+
+/**
  * Add the meta tags around the feed
  *
  * @param  {String} title
