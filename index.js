@@ -53,7 +53,16 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
       { lastBuildDate: format(now, 'ddd, DD MMM YYYY HH:mm:ss ZZ') }, // Date format must be RFC 822 compliant
       { docs: docs || 'http://blogs.law.harvard.edu/tech/rss' },
       { copyright: copyright || now.getFullYear() },
-      { generator: generator || 'Feed delivered by Clay' }
+      { generator: generator || 'Feed delivered by Clay' },
+      { language: 'en-us' },
+      { 'itunes:subtitle': description },
+      { 'itunes:author': title },
+      { 'itunes:summary': description },
+      { 'itunes:type': 'episodic' },
+      { 'itunes:owner': contactInfo(title, 'neil.janowitz@vulture.com') },
+      { 'itunes:image': 'http://pixel.nymag.com/imgs/daily/vulture/2018/08/21/Vulture3000x3000.jpg' },
+      { 'itunes:category': [{ _attr: { text: 'Entertainment'} }]},
+      { 'itunes:explicit': 'no' }
     ];
 
     if (opt) {
