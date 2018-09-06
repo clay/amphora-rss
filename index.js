@@ -87,6 +87,17 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
 }
 
 /**
+ * @param {Objecy} obj
+ */
+function cleanNullValues(obj) {
+  for (var propName in obj) {
+    if (obj[propName] === null || obj[propName] === undefined || obj[propName] === '') {
+      delete obj[propName];
+    }
+  }
+}
+
+/**
  * Wraps content in top level RSS and Channel tags
  *
  * @param  {Array} data
@@ -94,17 +105,23 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
  * @return {Object}
  */
 function wrapInTopLevel(data, attr) {
+  var combinedNamespaces, filteredNamespaces;
   const defaultAttr = {
-    version: '2.0',
+    version: '2.0'
+  },
+  defaultNamespaces = {
     'xmlns:content': 'http://purl.org/rss/1.0/modules/content/',
-    'xmlns:media': 'http://search.yahoo.com/mrss/',
+    'xmlns:mi': 'http://schemas.ingestion.microsoft.com/common/',
     'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
-    'xmlns:mi': 'http://schemas.ingestion.microsoft.com/common/'
-  };
+    'xmlns:media': 'http://search.yahoo.com/mrss/'
+  }
+
+  combinedNamespaces = {...defaultNamespaces, ...attr};
+  filteredNamespaces = cleanNullValues(combinedNamespaces);
 
   return {
     rss: [{
-      _attr: Object.assign(defaultAttr, attr)
+      _attr: Object.assign(defaultAttr, filteredNamespaces)
     }, {
       channel: data
     }]
