@@ -18,7 +18,7 @@ function init() {
     name: 'amphora-rss',
     prettyPrint: true,
     meta: {
-      amphoraSearchVersion: pkg.version
+      amphoraRss: pkg.version
     }
   });
 
