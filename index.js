@@ -26,19 +26,6 @@ function elevateCategory(group) {
 }
 
 /**
- *
- * @param {string} name
- * @param {string} email
- * @returns {Array}
- */
-function contactInfo(name, email) {
-  return [
-    { 'itunes:name': name },
-    { 'itunes:email': email }
-  ];
-}
-
-/**
  * Add the meta tags around the feed
  *
  * @param  {String} title
@@ -66,16 +53,7 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
       { lastBuildDate: format(now, 'ddd, DD MMM YYYY HH:mm:ss ZZ') }, // Date format must be RFC 822 compliant
       { docs: docs || 'http://blogs.law.harvard.edu/tech/rss' },
       { copyright: copyright || now.getFullYear() },
-      { generator: generator || 'Feed delivered by Clay' },
-      { language: 'en-us' },
-      { 'itunes:subtitle': description },
-      { 'itunes:author': title },
-      { 'itunes:summary': description },
-      { 'itunes:type': 'episodic' },
-      { 'itunes:owner': contactInfo(title, 'neil.janowitz@vulture.com') },
-      { 'itunes:image': 'http://pixel.nymag.com/imgs/daily/vulture/2018/08/21/Vulture3000x3000.jpg' },
-      { 'itunes:category': [{ _attr: { text: 'Entertainment'} }]},
-      { 'itunes:explicit': 'no' }
+      { generator: generator || 'Feed delivered by Clay' }
     ];
 
     if (opt) {
@@ -87,10 +65,10 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
 }
 
 /**
- * @param {Objecy} obj
+ * @param {Object} obj
  */
 function cleanNullValues(obj) {
-  for (var propName in obj) {
+  for (let propName in obj) {
     if (obj[propName] === null || obj[propName] === undefined || obj[propName] === '') {
       delete obj[propName];
     }
@@ -107,14 +85,14 @@ function cleanNullValues(obj) {
 function wrapInTopLevel(data, attr) {
   var combinedNamespaces, filteredNamespaces;
   const defaultAttr = {
-    version: '2.0'
-  },
-  defaultNamespaces = {
-    'xmlns:content': 'http://purl.org/rss/1.0/modules/content/',
-    'xmlns:mi': 'http://schemas.ingestion.microsoft.com/common/',
-    'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
-    'xmlns:media': 'http://search.yahoo.com/mrss/'
-  }
+      version: '2.0'
+    },
+    defaultNamespaces = {
+      'xmlns:content': 'http://purl.org/rss/1.0/modules/content/',
+      'xmlns:mi': 'http://schemas.ingestion.microsoft.com/common/',
+      'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
+      'xmlns:media': 'http://search.yahoo.com/mrss/'
+    };
 
   combinedNamespaces = {...defaultNamespaces, ...attr};
   filteredNamespaces = cleanNullValues(combinedNamespaces);
