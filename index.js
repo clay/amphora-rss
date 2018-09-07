@@ -69,7 +69,7 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
  */
 function cleanNullValues(obj) {
   for (let propName in obj) {
-    if (obj[propName] === null || obj[propName] === undefined || obj[propName] === '') {
+    if (!obj[propName]) {
       delete obj[propName];
     }
   }
@@ -83,23 +83,17 @@ function cleanNullValues(obj) {
  * @return {Object}
  */
 function wrapInTopLevel(data, attr) {
-  var combinedNamespaces, filteredNamespaces;
-  const defaultAttr = {
-      version: '2.0'
-    },
-    defaultNamespaces = {
-      'xmlns:content': 'http://purl.org/rss/1.0/modules/content/',
-      'xmlns:mi': 'http://schemas.ingestion.microsoft.com/common/',
-      'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
-      'xmlns:media': 'http://search.yahoo.com/mrss/'
-    };
-
-  combinedNamespaces = {...defaultNamespaces, ...attr};
-  filteredNamespaces = cleanNullValues(combinedNamespaces);
+  const defaultNamespaces = {
+    version: '2.0',
+    'xmlns:content': 'http://purl.org/rss/1.0/modules/content/',
+    'xmlns:mi': 'http://schemas.ingestion.microsoft.com/common/',
+    'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
+    'xmlns:media': 'http://search.yahoo.com/mrss/'
+  };
 
   return {
     rss: [{
-      _attr: Object.assign(defaultAttr, filteredNamespaces)
+      _attr: cleanNullValues({...defaultNamespaces, ...attr})
     }, {
       channel: data
     }]

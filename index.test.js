@@ -88,7 +88,7 @@ describe(_.startCase(filename), function () {
       expect(val.rss[0]._attr).to.not.be.undefined;
     });
 
-    it('merges attr instance data into the default _attr properties', function () {
+    it('merges attr instance data into the default namespace properties', function () {
       expect(valWithAttr.rss[0]._attr).to.have.property('bar', 'http://bar.com');
     });
 
