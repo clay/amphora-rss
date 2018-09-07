@@ -74,6 +74,15 @@ describe(_.startCase(filename), function () {
     });
   });
 
+  describe('cleanNullValues', function () {
+    const fn = lib[this.title];
+
+    it('filters out falsy values from an object', function () {
+      expect(fn({ foo: 'bar', baz: false, barbaz: null, bazfoo: undefined, foobaz: ''}))
+        .to.eql({ foo: 'bar' });
+    });
+  });
+
   describe('wrapInTopLevel', function () {
     const fn = lib[this.title],
       val = fn('foo'),
@@ -88,7 +97,7 @@ describe(_.startCase(filename), function () {
       expect(val.rss[0]._attr).to.not.be.undefined;
     });
 
-    it('merges attr instance data into the default namespace properties', function () {
+    it('merges attr instance data into the default _attr properties', function () {
       expect(valWithAttr.rss[0]._attr).to.have.property('bar', 'http://bar.com');
     });
 

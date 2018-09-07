@@ -11,11 +11,6 @@
     "chai": false,
     "sinon": false
   },
-  "parserOptions": {
-    "ecmaFeatures": {
-      "experimentalObjectRestSpread": true
-    }
-  },
   "rules": {
     // possible errors
     "no-extra-parens": 1,

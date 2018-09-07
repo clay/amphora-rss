@@ -65,7 +65,10 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
 }
 
 /**
+ * Remove falsy values from an object
+ *
  * @param {Object} obj
+ * @returns {Object}
  */
 function cleanNullValues(obj) {
   for (let propName in obj) {
@@ -73,6 +76,8 @@ function cleanNullValues(obj) {
       delete obj[propName];
     }
   }
+
+  return obj;
 }
 
 /**
@@ -82,7 +87,7 @@ function cleanNullValues(obj) {
  * @param  {Object} attr
  * @return {Object}
  */
-function wrapInTopLevel(data, attr) {
+function wrapInTopLevel(data, attr = {}) {
   const defaultNamespaces = {
     version: '2.0',
     'xmlns:content': 'http://purl.org/rss/1.0/modules/content/',
@@ -93,7 +98,7 @@ function wrapInTopLevel(data, attr) {
 
   return {
     rss: [{
-      _attr: cleanNullValues({...defaultNamespaces, ...attr})
+      _attr: cleanNullValues(Object.assign(defaultNamespaces, attr))
     }, {
       channel: data
     }]
@@ -155,4 +160,5 @@ module.exports.wrapInItem = wrapInItem;
 module.exports.wrapInTopLevel = wrapInTopLevel;
 module.exports.feedMetaTags = feedMetaTags;
 module.exports.elevateCategory = elevateCategory;
+module.exports.cleanNullValues = cleanNullValues;
 module.exports.setLog = (fake) => log = fake;
