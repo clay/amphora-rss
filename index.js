@@ -73,6 +73,7 @@ function cleanNullValues(obj) {
       delete obj[propName];
     }
   }
+  return obj;
 }
 
 /**
