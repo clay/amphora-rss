@@ -25,6 +25,23 @@ This renderer is highly dependent on the component API provided by Amphora and t
 
 ## Data Specification
 
+## Updating Namespaces
+
+This renderer has default namespaces which gets injected at the top of the rss feed. These namespaces are contained inside of the `defaultNamespaces` object. The namespaces can be overridden, removed or extended by attaching namespaces to the `attr` object. Since we merge this `attr` with `defaultNamespaces` and remove null values, attr keys with a null value will not be included and attr keys with a new namespace will be added as an additional namespace. If a key holds a namespace that already exists within `defaultNamespaces` (and the value is not null) we will use the value of the attr namespace.
+
+- To remove a default namespace, set the value of that namespace to `null` inside the `attr` object. To modify a namespace, change the value of that same namespace inside the `attr` object. To add a new namespace, add a key:value pair to the `attr` object where the key is a namespace that isn't used within `defaultNamespaces`, and the url is value.
+  - `defaultNamespaces: {
+      version: '2.0',
+      'xmlns:content': 'http://purl.org/rss/1.0/modules/content/',
+      'xmlns:mi': 'http://schemas.ingestion.microsoft.com/common/',
+      'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
+    }`
+  - `"attr": {
+      "xmlns:itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd", <!-- this will be an additional namespace in our feed -->
+      "xmlns:mi": null, <!-- this will be removed from our feed -->
+      "xmlns:dc": "http://purl.org/dc/elements/2.1/", <!-- this will override and be the updated namespace -->
+	  }`
+
 ### `feed` Array
 
 At it's core, this renderer is a wrapper around the [`xml` package](https://www.npmjs.com/package/xml) to build the XML for the feed. This means that it is the responsibility of the renderer specific `model.js` file to create a `feed` object that abides by the API of this package. Refer to the package [README](https://github.com/dylang/node-xml/blob/master/readme.md) for structure of this array.
