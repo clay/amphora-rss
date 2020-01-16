@@ -64,11 +64,13 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
     }
 
     if (image) {
-      siteMeta = siteMeta.concat({ image: [
+      let imageInfo = [
         { url: image.url },
         { link: link },
         { title: title}
-      ]});
+      ];
+
+      siteMeta = siteMeta.concat({ image : imageInfo });
     }
 
     return siteMeta.concat(elevateCategory(group), group);
