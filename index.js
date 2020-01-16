@@ -2,6 +2,7 @@
 
 const h = require('highland'),
   xml = require('xml'),
+  _findIndex = require('lodash/findIndex'),
   format = require('date-fns/format');
 
 let log = require('./services/log').setup({ file: __filename });
@@ -35,9 +36,10 @@ function elevateCategory(group) {
  * @param  {String} [generator]
  * @param  {String} [docs]
  * @param  {String} [opt]
+ * @param  {Object} image
  * @return {Array}
  */
-function feedMetaTags({ title, description, link, copyright, generator, docs, opt }) {
+function feedMetaTags({ title, description, link, copyright, generator, docs, opt, image }) {
   return (group) => {
     let now, siteMeta;
 
@@ -58,6 +60,14 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
 
     if (opt) {
       siteMeta = siteMeta.concat(opt);
+    }
+
+    if (image) {
+      siteMeta = siteMeta.concat({ image: [
+        { url: image.url },
+        { link: link },
+        { title: title}
+      ]});
     }
 
     return siteMeta.concat(elevateCategory(group), group);
@@ -112,6 +122,12 @@ function wrapInTopLevel(data, attr = {}) {
  * @return {Object}
  */
 function wrapInItem(entry) {
+  if (entry.length) {
+    let imageIndex = findIndexOfElementInArray(entry, 'image');
+
+    entry.splice(imageIndex, 1);
+  }
+
   return { item: entry };
 }
 
@@ -135,6 +151,16 @@ function sendError(res, e, message = e.message) {
  * @return {Promise}
  */
 function render({ feed, meta, attr }, info, res) {
+  if (feed.length) {
+    let imageIndex = findIndexOfElementInArray(feed[0], 'image');
+
+    if (feed[0][imageIndex].image.url) {
+      meta.image = {
+        url: feed[0][imageIndex].image.url,
+      };
+    }
+  }
+
   return h(feed)
     .map(wrapInItem)
     .collect()
@@ -151,6 +177,16 @@ function render({ feed, meta, attr }, info, res) {
       res.send(xml(data, { declaration: true, indent: '\t' }));
     })
     .catch(e => sendError(res, e));
+}
+
+/**
+ *
+ * @param {Array} array
+ * @param {String} element
+ * @returns {number}
+ */
+function findIndexOfElementInArray(array, element) {
+  return _findIndex(array, (item) => item[element]);
 }
 
 module.exports.render = render;
