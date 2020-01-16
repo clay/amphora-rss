@@ -122,7 +122,7 @@ function wrapInTopLevel(data, attr = {}) {
  */
 function wrapInItem(entry) {
   if (entry.length) {
-    let imageIndex = findIndexOfElementInArray(entry, 'image');
+    const imageIndex = findIndexOfElementInArray(entry, 'image');
 
     if (imageIndex !== -1) entry.splice(imageIndex, 1);
   }
@@ -151,14 +151,10 @@ function sendError(res, e, message = e.message) {
  */
 function render({ feed, meta, attr }, info, res) {
   if (feed.length) {
-    let imageIndex = findIndexOfElementInArray(feed[0], 'image'),
-      url = _get(feed[0][imageIndex].image, 'url');
+    const imageIndex = findIndexOfElementInArray(feed[0], 'image'),
+      url = _get(feed[0][imageIndex], 'image.url');
 
-    if (url) {
-      meta.image = {
-        url,
-      };
-    }
+    if (url) meta.image = { url };
   }
 
   return h(feed)
