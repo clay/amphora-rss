@@ -3,6 +3,7 @@
 const h = require('highland'),
   xml = require('xml'),
   _findIndex = require('lodash/findIndex'),
+  _get = require('lodash/get'),
   format = require('date-fns/format');
 
 let log = require('./services/log').setup({ file: __filename });
@@ -152,11 +153,12 @@ function sendError(res, e, message = e.message) {
  */
 function render({ feed, meta, attr }, info, res) {
   if (feed.length) {
-    let imageIndex = findIndexOfElementInArray(feed[0], 'image');
+    let imageIndex = findIndexOfElementInArray(feed[0], 'image'),
+      url = _get(feed[0][imageIndex].image, 'url');
 
-    if (feed[0][imageIndex].image.url) {
+    if (url) {
       meta.image = {
-        url: feed[0][imageIndex].image.url,
+        url,
       };
     }
   }
