@@ -64,13 +64,7 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
     }
 
     if (image) {
-      let imageInfo = [
-        { url: image.url },
-        { link: link },
-        { title: title}
-      ];
-
-      siteMeta = siteMeta.concat({ image : imageInfo });
+      siteMeta = siteMeta.concat(formatImageTag(image.url, link, title));
     }
 
     return siteMeta.concat(elevateCategory(group), group);
@@ -184,6 +178,7 @@ function render({ feed, meta, attr }, info, res) {
 }
 
 /**
+ * Finds the index of a given element in an array.
  *
  * @param {Array} array
  * @param {String} element
@@ -191,6 +186,23 @@ function render({ feed, meta, attr }, info, res) {
  */
 function findIndexOfElementInArray(array, element) {
   return _findIndex(array, (item) => item[element]);
+}
+
+/**
+ * Formats image tag on the rss feed.
+ *
+ * @param url
+ * @param link
+ * @param title
+ * @returns {Object}
+ */
+function formatImageTag(url, link, title) {
+
+  return { image: [
+    { url },
+    { link },
+    { title}
+  ]};
 }
 
 module.exports.render = render;
