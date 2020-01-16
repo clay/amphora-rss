@@ -4,7 +4,9 @@ const h = require('highland'),
   xml = require('xml'),
   _findIndex = require('lodash/findIndex'),
   _get = require('lodash/get'),
-  format = require('date-fns/format');
+  format = require('date-fns/format'),
+  docsUrl = 'http://blogs.law.harvard.edu/tech/rss',
+  generatorMessage = 'Feed delivered by Clay';
 
 let log = require('./services/log').setup({ file: __filename });
 
@@ -40,7 +42,7 @@ function elevateCategory(group) {
  * @param  {Object} image
  * @return {Array}
  */
-function feedMetaTags({ title, description, link, copyright, generator, docs, opt, image }) {
+function feedMetaTags({ title, description, link, copyright, generator = generatorMessage, docs = docsUrl, opt, image }) {
   return (group) => {
     let now, siteMeta;
 
@@ -54,9 +56,9 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
       { description },
       { link },
       { lastBuildDate: format(now, 'ddd, DD MMM YYYY HH:mm:ss ZZ') }, // Date format must be RFC 822 compliant
-      { docs: docs || 'http://blogs.law.harvard.edu/tech/rss' },
+      { docs: docs },
       { copyright: copyright || now.getFullYear() },
-      { generator: generator || 'Feed delivered by Clay' }
+      { generator: generator }
     ];
 
     if (opt) {
@@ -191,13 +193,12 @@ function findIndexOfElementInArray(array, element) {
 /**
  * Formats image tag on the rss feed.
  *
- * @param url
- * @param link
- * @param title
+ * @param {String} url
+ * @param {String} link
+ * @param {String} title
  * @returns {Object}
  */
 function formatImageTag(url, link, title) {
-
   return { image: [
     { url },
     { link },
