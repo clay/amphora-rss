@@ -124,7 +124,7 @@ function wrapInItem(entry) {
   if (entry.length) {
     let imageIndex = findIndexOfElementInArray(entry, 'image');
 
-    entry.splice(imageIndex, 1);
+    if (imageIndex !== -1) entry.splice(imageIndex, 1);
   }
 
   return { item: entry };
