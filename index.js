@@ -56,9 +56,9 @@ function feedMetaTags({ title, description, link, copyright, generator = generat
       { description },
       { link },
       { lastBuildDate: format(now, 'ddd, DD MMM YYYY HH:mm:ss ZZ') }, // Date format must be RFC 822 compliant
-      { docs: docs },
+      { docs },
       { copyright: copyright || now.getFullYear() },
-      { generator: generator }
+      { generator }
     ];
 
     if (opt) {
