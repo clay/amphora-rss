@@ -2,7 +2,11 @@
 
 const h = require('highland'),
   xml = require('xml'),
-  format = require('date-fns/format');
+  _findIndex = require('lodash/findIndex'),
+  _get = require('lodash/get'),
+  format = require('date-fns/format'),
+  docsUrl = 'http://blogs.law.harvard.edu/tech/rss',
+  generatorMessage = 'Feed delivered by Clay';
 
 let log = require('./services/log').setup({ file: __filename });
 
@@ -35,9 +39,10 @@ function elevateCategory(group) {
  * @param  {String} [generator]
  * @param  {String} [docs]
  * @param  {String} [opt]
+ * @param  {Object} image
  * @return {Array}
  */
-function feedMetaTags({ title, description, link, copyright, generator, docs, opt }) {
+function feedMetaTags({ title, description, link, copyright, generator = generatorMessage, docs = docsUrl, opt, image }) {
   return (group) => {
     let now, siteMeta;
 
@@ -51,13 +56,17 @@ function feedMetaTags({ title, description, link, copyright, generator, docs, op
       { description },
       { link },
       { lastBuildDate: format(now, 'ddd, DD MMM YYYY HH:mm:ss ZZ') }, // Date format must be RFC 822 compliant
-      { docs: docs || 'http://blogs.law.harvard.edu/tech/rss' },
+      { docs },
       { copyright: copyright || now.getFullYear() },
-      { generator: generator || 'Feed delivered by Clay' }
+      { generator }
     ];
 
     if (opt) {
       siteMeta = siteMeta.concat(opt);
+    }
+
+    if (image) {
+      siteMeta = siteMeta.concat(formatImageTag(image.url, link, title));
     }
 
     return siteMeta.concat(elevateCategory(group), group);
@@ -112,6 +121,12 @@ function wrapInTopLevel(data, attr = {}) {
  * @return {Object}
  */
 function wrapInItem(entry) {
+  if (entry.length) {
+    const imageIndex = findIndexOfElementInArray(entry, 'image');
+
+    if (imageIndex !== -1) entry.splice(imageIndex, 1);
+  }
+
   return { item: entry };
 }
 
@@ -135,6 +150,13 @@ function sendError(res, e, message = e.message) {
  * @return {Promise}
  */
 function render({ feed, meta, attr }, info, res) {
+  if (feed.length) {
+    const imageIndex = findIndexOfElementInArray(feed[0], 'image'),
+      url = _get(feed[0][imageIndex], 'image.url');
+
+    if (url) meta.image = { url };
+  }
+
   return h(feed)
     .map(wrapInItem)
     .collect()
@@ -151,6 +173,33 @@ function render({ feed, meta, attr }, info, res) {
       res.send(xml(data, { declaration: true, indent: '\t' }));
     })
     .catch(e => sendError(res, e));
+}
+
+/**
+ * Finds the index of a given element in an array.
+ *
+ * @param {Array} array
+ * @param {String} element
+ * @returns {number}
+ */
+function findIndexOfElementInArray(array, element) {
+  return _findIndex(array, (item) => item[element]);
+}
+
+/**
+ * Formats image tag on the rss feed.
+ *
+ * @param {String} url
+ * @param {String} link
+ * @param {String} title
+ * @returns {Object}
+ */
+function formatImageTag(url, link, title) {
+  return { image: [
+    { url },
+    { link },
+    { title }
+  ]};
 }
 
 module.exports.render = render;
