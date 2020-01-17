@@ -198,7 +198,7 @@ function formatImageTag(url, link, title) {
   return { image: [
     { url },
     { link },
-    { title}
+    { title }
   ]};
 }
 
