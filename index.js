@@ -32,40 +32,36 @@ function elevateCategory(group) {
 /**
  * Add the meta tags around the feed
  *
- * @param  {String} title
- * @param  {String} description
- * @param  {String} link
- * @param  {String|Number} [copyright]
- * @param  {String} [generator]
- * @param  {String} [docs]
- * @param  {String|Object} [opt]
- * @param  {Object} [image]
- * @param  {Boolean} [elevateChannelCategories=true]  when false, skip elevating item categories into channel
+ * @param {Object} meta
+ * @param {String} meta.title
+ * @param {String} meta.description
+ * @param {String} meta.link
+ * @param {String|Number} [meta.copyright]
+ * @param {String} [meta.generator]
+ * @param {String} [meta.docs]
+ * @param {Array}  [meta.opt]
+ * @param {Object} [meta.image]
+ * @param {Boolean}[meta.elevateChannelCategories=true]
  * @return {Function}
  */
-function feedMetaTags(
-  { title,
-    description,
-    link,
-    copyright,
-    generator   = generatorMessage,
-    docs        = docsUrl,
-    opt,
-    image,
-    elevateChannelCategories = true
-  }
-) {
+function feedMetaTags({
+  title,
+  description,
+  link,
+  copyright,
+  generator = generatorMessage,
+  docs = docsUrl,
+  opt,
+  image,
+  elevateChannelCategories = true
+}) {
   return (group) => {
-    let now, siteMeta;
-
     if (!title || !description || !link) {
-      throw new Error(
-        'A `title`, `description` and `link` property are all required in the `meta` object for the RSS renderer'
-      );
+      throw new Error('A `title`, `description` and `link` property are all required in the `meta` object for the RSS renderer');
     }
 
-    now = new Date();
-    siteMeta = [
+    const now = new Date();
+    let siteMeta = [
       { title },
       { description },
       { link },
@@ -83,7 +79,6 @@ function feedMetaTags(
       siteMeta = siteMeta.concat(formatImageTag(image.url, link, title));
     }
 
-    // only elevate item <category> tags into the channel if requested
     const channelCats = elevateChannelCategories
       ? elevateCategory(group)
       : [];
@@ -110,9 +105,9 @@ function cleanNullValues(obj) {
 /**
  * Wraps content in top level RSS and Channel tags
  *
- * @param  {Array} data
- * @param  {Object} attr
- * @return {Object}
+ * @param {Array} data
+ * @param {Object} attr
+ * @returns {Object}
  */
 function wrapInTopLevel(data, attr = {}) {
   const defaultNamespaces = {
@@ -125,9 +120,7 @@ function wrapInTopLevel(data, attr = {}) {
 
   return {
     rss: [
-      {
-        _attr: cleanNullValues(Object.assign(defaultNamespaces, attr))
-      },
+      { _attr: cleanNullValues(Object.assign(defaultNamespaces, attr)) },
       { channel: data }
     ]
   };
@@ -136,13 +129,15 @@ function wrapInTopLevel(data, attr = {}) {
 /**
  * Wrap each entry in an object under the `item` property
  *
- * @param  {Object} entry
- * @return {Object}
+ * @param {Array} entry
+ * @returns {Object}
  */
 function wrapInItem(entry) {
   if (entry.length) {
     const imageIndex = findIndexOfElementInArray(entry, 'image');
-    if (imageIndex !== -1) entry.splice(imageIndex, 1);
+    if (imageIndex !== -1) {
+      entry.splice(imageIndex, 1);
+    }
   }
   return { item: entry };
 }
@@ -157,15 +152,18 @@ function sendError(res, e, message = e.message) {
 /**
  * Given the data object from Amphora, make the XML
  *
- * @param  {Object} data
- * @param  {Object} info
- * @param  {Object} res
- * @return {Promise}
+ * @param {Object} data
+ * @param {Array}  data.feed
+ * @param {Object} data.meta
+ * @param {Object} data.attr
+ * @param {Object} info
+ * @param {Object} res
+ * @returns {Promise}
  */
 function render({ feed, meta, attr }, info, res) {
   if (feed.length) {
-    const imageIndex = findIndexOfElementInArray(feed[0], 'image'),
-      url = _get(feed[0][imageIndex], 'image.url');
+    const imageIndex = findIndexOfElementInArray(feed[0], 'image');
+    const url = _get(feed[0][imageIndex], 'image.url');
     if (url) meta.image = { url };
   }
 
@@ -178,7 +176,7 @@ function render({ feed, meta, attr }, info, res) {
     .toPromise(Promise)
     .then(data => {
       if (!data) {
-        throw new Error('No data send to XML renderer, cannot respond');
+        throw new Error('No data sent to XML renderer, cannot respond');
       }
       res.type('text/rss+xml');
       res.send(xml(data, { declaration: true, indent: '\t' }));
@@ -194,7 +192,7 @@ function render({ feed, meta, attr }, info, res) {
  * @returns {number}
  */
 function findIndexOfElementInArray(array, element) {
-  return _findIndex(array, item => item[element]);
+  return _findIndex(array, (item) => item[element]);
 }
 
 /**
@@ -216,11 +214,9 @@ function formatImageTag(url, link, title) {
 }
 
 module.exports.render = render;
-
-// Exported for testing
 module.exports.wrapInItem = wrapInItem;
 module.exports.wrapInTopLevel = wrapInTopLevel;
 module.exports.feedMetaTags = feedMetaTags;
 module.exports.elevateCategory = elevateCategory;
 module.exports.cleanNullValues = cleanNullValues;
-module.exports.setLog = fake => (log = fake);
+module.exports.setLog = (fake) => (log = fake);
