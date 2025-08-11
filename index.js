@@ -22,7 +22,7 @@ function elevateCategory(group) {
     .map(({ item }) => {
       return item
         .filter(entry => entry && entry.category)
-        .map(entry => entry && entry.category)
+        .map(entry => entry.category)
         .join(',');
     })
     .filter(Boolean)
@@ -38,16 +38,30 @@ function elevateCategory(group) {
  * @param  {String|Number} [copyright]
  * @param  {String} [generator]
  * @param  {String} [docs]
- * @param  {String} [opt]
- * @param  {Object} image
- * @return {Array}
+ * @param  {String|Object} [opt]
+ * @param  {Object} [image]
+ * @param  {Boolean} [elevateChannelCategories=true]  when false, skip elevating item categories into channel
+ * @return {Function}
  */
-function feedMetaTags({ title, description, link, copyright, generator = generatorMessage, docs = docsUrl, opt, image }) {
+function feedMetaTags(
+  { title,
+    description,
+    link,
+    copyright,
+    generator   = generatorMessage,
+    docs        = docsUrl,
+    opt,
+    image,
+    elevateChannelCategories = true
+  }
+) {
   return (group) => {
     let now, siteMeta;
 
     if (!title || !description || !link) {
-      throw new Error('A `title`, `description` and `link` property are all required in the `meta` object for the RSS renderer');
+      throw new Error(
+        'A `title`, `description` and `link` property are all required in the `meta` object for the RSS renderer'
+      );
     }
 
     now = new Date();
@@ -55,7 +69,7 @@ function feedMetaTags({ title, description, link, copyright, generator = generat
       { title },
       { description },
       { link },
-      { lastBuildDate: format(now, 'ddd, DD MMM YYYY HH:mm:ss ZZ') }, // Date format must be RFC 822 compliant
+      { lastBuildDate: format(now, 'ddd, DD MMM YYYY HH:mm:ss ZZ') },
       { docs },
       { copyright: copyright || now.getFullYear() },
       { generator }
@@ -69,7 +83,12 @@ function feedMetaTags({ title, description, link, copyright, generator = generat
       siteMeta = siteMeta.concat(formatImageTag(image.url, link, title));
     }
 
-    return siteMeta.concat(elevateCategory(group), group);
+    // only elevate item <category> tags into the channel if requested
+    const channelCats = elevateChannelCategories
+      ? elevateCategory(group)
+      : [];
+
+    return siteMeta.concat(channelCats, group);
   };
 }
 
@@ -85,7 +104,6 @@ function cleanNullValues(obj) {
       delete obj[propName];
     }
   }
-
   return obj;
 }
 
@@ -106,11 +124,12 @@ function wrapInTopLevel(data, attr = {}) {
   };
 
   return {
-    rss: [{
-      _attr: cleanNullValues(Object.assign(defaultNamespaces, attr))
-    }, {
-      channel: data
-    }]
+    rss: [
+      {
+        _attr: cleanNullValues(Object.assign(defaultNamespaces, attr))
+      },
+      { channel: data }
+    ]
   };
 }
 
@@ -123,22 +142,16 @@ function wrapInTopLevel(data, attr = {}) {
 function wrapInItem(entry) {
   if (entry.length) {
     const imageIndex = findIndexOfElementInArray(entry, 'image');
-
     if (imageIndex !== -1) entry.splice(imageIndex, 1);
   }
-
   return { item: entry };
 }
 
 function sendError(res, e, message = e.message) {
   const status = 500;
-
   res.status(status);
   res.json({ status, message });
-
-  log('error', e.message, {
-    stack: e.stack
-  });
+  log('error', e.message, { stack: e.stack });
 }
 
 /**
@@ -153,7 +166,6 @@ function render({ feed, meta, attr }, info, res) {
   if (feed.length) {
     const imageIndex = findIndexOfElementInArray(feed[0], 'image'),
       url = _get(feed[0][imageIndex], 'image.url');
-
     if (url) meta.image = { url };
   }
 
@@ -168,7 +180,6 @@ function render({ feed, meta, attr }, info, res) {
       if (!data) {
         throw new Error('No data send to XML renderer, cannot respond');
       }
-
       res.type('text/rss+xml');
       res.send(xml(data, { declaration: true, indent: '\t' }));
     })
@@ -183,7 +194,7 @@ function render({ feed, meta, attr }, info, res) {
  * @returns {number}
  */
 function findIndexOfElementInArray(array, element) {
-  return _findIndex(array, (item) => item[element]);
+  return _findIndex(array, item => item[element]);
 }
 
 /**
@@ -195,11 +206,13 @@ function findIndexOfElementInArray(array, element) {
  * @returns {Object}
  */
 function formatImageTag(url, link, title) {
-  return { image: [
-    { url },
-    { link },
-    { title }
-  ]};
+  return {
+    image: [
+      { url },
+      { link },
+      { title }
+    ]
+  };
 }
 
 module.exports.render = render;
@@ -210,4 +223,4 @@ module.exports.wrapInTopLevel = wrapInTopLevel;
 module.exports.feedMetaTags = feedMetaTags;
 module.exports.elevateCategory = elevateCategory;
 module.exports.cleanNullValues = cleanNullValues;
-module.exports.setLog = (fake) => log = fake;
+module.exports.setLog = fake => (log = fake);
