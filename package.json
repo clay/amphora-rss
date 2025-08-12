@@ -1,6 +1,6 @@
 {
   "name": "amphora-rss",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Convert JSON from Amphora into RSS",
   "main": "index.js",
   "scripts": {
