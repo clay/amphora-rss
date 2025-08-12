@@ -48,7 +48,7 @@ function feedMetaTags(data) {
     copyright,
     description,
     docs = docsUrl,
-    shouldElevateChannelCategories = false,
+    shouldElevateChannelCategories = true,
     generator = generatorMessage,
     image,
     link,
