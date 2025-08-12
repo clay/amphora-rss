@@ -39,10 +39,23 @@ function elevateCategory(group) {
  * @param  {String} [generator]
  * @param  {String} [docs]
  * @param  {String} [opt]
- * @param  {Object} image
+ * @param  {Object} [image]
+ * @param {Boolean} [shouldElevateChannelCategories=false]
  * @return {Array}
  */
-function feedMetaTags({ title, description, link, copyright, generator = generatorMessage, docs = docsUrl, opt, image }) {
+function feedMetaTags(data) {
+  const {
+    copyright,
+    description,
+    docs = docsUrl,
+    shouldElevateChannelCategories = true,
+    generator = generatorMessage,
+    image,
+    link,
+    opt,
+    title
+  } = data;
+
   return (group) => {
     let now, siteMeta;
 
@@ -61,15 +74,15 @@ function feedMetaTags({ title, description, link, copyright, generator = generat
       { generator }
     ];
 
-    if (opt) {
-      siteMeta = siteMeta.concat(opt);
-    }
+    if (opt) siteMeta = siteMeta.concat(opt);
+    if (image) siteMeta = siteMeta.concat(formatImageTag(image.url, link, title));
 
-    if (image) {
-      siteMeta = siteMeta.concat(formatImageTag(image.url, link, title));
-    }
+    // lift item level categories into the channel if the flag is true
+    const channelCategories = shouldElevateChannelCategories
+      ? elevateCategory(group)
+      : [];
 
-    return siteMeta.concat(elevateCategory(group), group);
+    return siteMeta.concat(channelCategories, group);
   };
 }
 
